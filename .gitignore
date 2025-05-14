@@ -1,0 +1,19 @@
+# generate a gitignore file to ignore pyc files and other common files and env files
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+# C extensions
+*.so
+# Distribution / packaging
+.Python
+env
+build/
+develop-eggs/
+dist/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
