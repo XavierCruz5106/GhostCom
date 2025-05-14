@@ -1,5 +1,5 @@
 from voice_recognition.recognizer import recognize_audio
-from commands.registry import execute_command
+from commands.registry import execute_command, command_registry
 from commands import core_commands
 
 
@@ -8,10 +8,22 @@ def process_transcript(transcript: str):
     """
     Match the transcript with commands and execute them.
     """
-    # TODO: Implement command matching logic
-    # For now, just print the transcript
     print(f"👂 Heard: {transcript}")
-    execute_command("mute_discord")
+    matched_command = None
+    for command in command_registry.keys():
+        if command.replace("_", " ") in transcript.lower():
+            matched_command = command
+            break
+        # Extra: fuzzy match just in case
+        elif command in transcript.lower().replace(" ", "_"):
+            matched_command = command
+            break
+
+    if matched_command:
+        print(f"✅ Recognized command: {matched_command}")
+        execute_command(matched_command)
+    else:
+        print("❌ No known command matched.")
 
 def main():
 
