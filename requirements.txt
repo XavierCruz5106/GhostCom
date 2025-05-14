@@ -4,3 +4,4 @@ flask
 fuzzywuzzy
 pyttsx3
 requests
+pyautogui

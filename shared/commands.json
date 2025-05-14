@@ -2,7 +2,21 @@
   {
     "name": "mute_discord",
     "enabled": true,
-    "phrases": ["mute discord", "turn off discord sound", "mute discord voice"],
+    "phrases": [
+      "mute discord",
+      "turn off discord microphone",
+      "mute discord voice"
+    ],
+    "args": []
+  },
+  {
+    "name": "unmute_discord",
+    "enabled": true,
+    "phrases": [
+      "unmute discord",
+      "turn on discord microphone",
+      "unmute discord voice"
+    ],
     "args": []
   }
 ]

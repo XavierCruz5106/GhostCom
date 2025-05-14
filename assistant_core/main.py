@@ -8,13 +8,19 @@ def process_transcript(transcript: str):
     """
     Match the transcript with commands and execute them.
     """
+    if not transcript:
+        print("❌ No transcript available.")
+        return
+
     print(f"👂 Heard: {transcript}")
     matched_command = None
-    for command in command_registry.keys():
-        if command.replace("_", " ") in transcript.lower():
+
+    # Sort commands by length (descending) to prioritize more specific matches
+    for command in sorted(command_registry.keys(), key=lambda x: -len(x)):
+        command_phrase = command.replace("_", " ")
+        if command_phrase in transcript.lower():
             matched_command = command
             break
-        # Extra: fuzzy match just in case
         elif command in transcript.lower().replace(" ", "_"):
             matched_command = command
             break
