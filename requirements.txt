@@ -1,0 +1,6 @@
+pyaudio
+speech_recognition
+flask
+fuzzywuzzy
+pyttsx3
+requests
