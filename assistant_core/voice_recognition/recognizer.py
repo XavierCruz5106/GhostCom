@@ -1,50 +1,60 @@
-import pyaudio
 import speech_recognition as sr
+from commands.registry import execute_command, command_registry
 
-# Parameters for recording
-FORMAT = pyaudio.paInt16
-CHANNELS = 1
-RATE = 16000
-CHUNK = 1024
-RECORD_SECONDS = 5
+WAKE_WORD = "ghost"
 
-p = pyaudio.PyAudio()
-
-# Open the microphone stream
-stream = p.open(format=FORMAT,
-                channels=CHANNELS,
-                rate=RATE,
-                input=True,
-                frames_per_buffer=CHUNK)
-
-def recognize_audio():
+def recognize_audio_loop():
     """
-    Recognize speech from live microphone input using the SpeechRecognition library.
+    Continuously listens to the microphone and processes detected speech in a loop.
+    Stops only with a KeyboardInterrupt (Ctrl+C).
     """
-    # Initialize the recognizer
     recognizer = sr.Recognizer()
-    frames = []
-    for _ in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
-        data = stream.read(CHUNK)
-        frames.append(data)
-    stream.stop_stream()
-    stream.close()
-    p.terminate()
-    audio_data = b''.join(frames)
+    mic = sr.Microphone()
 
-    # Convert the byte data to an AudioData object (speech_recognition needs this)
-    audio_buffer = sr.AudioData(audio_data, RATE, 2)  # 2 represents 16-bit (2 bytes per sample)
+    with mic as source:
+        recognizer.adjust_for_ambient_noise(source)
+        print(f"🎤 Voice assistant is running. To speak say {WAKE_WORD} ... (Press Ctrl+C to stop)")
 
-    try:
-        print("Recognizing...")
-        transcript = recognizer.recognize_google(audio_buffer)
-        return transcript
-    except sr.UnknownValueError:
-        print("Google Speech Recognition could not understand the audio")
-        return None
-    except sr.RequestError as e:
-        print(f"Could not request results from Google Speech Recognition service; {e}")
-        return None
+        while True:
+            try:
+                audio = recognizer.listen(source)
+
+                transcript = recognizer.recognize_google(audio)
+                if WAKE_WORD in transcript.lower():
+                    process_transcript(transcript)
+
+            except sr.UnknownValueError:
+                continue
+            except sr.RequestError as e:
+                print(f"⚠️ API error: {e}")
+
+
+def process_transcript(transcript: str):
+    """
+    Match the transcript with commands and execute them.
+    """
+    if not transcript:
+        print("❌ No transcript available.")
+        return
+
+    print(f"👂 Heard: {transcript}")
+    matched_command = None
+
+    # Sort commands by length (descending) to prioritize more specific matches
+    for command in sorted(command_registry.keys(), key=lambda x: -len(x)):
+        command_phrase = command.replace("_", " ")
+        if command_phrase in transcript.lower():
+            matched_command = command
+            break
+        elif command in transcript.lower().replace(" ", "_"):
+            matched_command = command
+            break
+
+    if matched_command:
+        print(f"✅ Recognized command: {matched_command}")
+        execute_command(matched_command)
+    else:
+        print("❌ No known command matched.")
 
 if __name__ == "__main__":
     recognize_audio()
