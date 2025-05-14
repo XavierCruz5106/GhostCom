@@ -9,6 +9,7 @@ def process_transcript(transcript: str):
     # TODO: Implement command matching logic
     # For now, just print the transcript
     print(f"👂 Heard: {transcript}")
+    execute_command("mute_discord")
 def main():
     # Start listening for audio and process it
     print("🎙️ Starting voice detection...")
